@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<title>Нічні маршрути — альбом гурту «Сигнальні вогні»</title>
+<style>
+/* Локальний акцентний шрифт для заголовків і логотипа */
+@font-face{
+  font-family:"Signal Serif";
+  src:url("fonts/SignalSerif-Bold.woff") format("woff"),
+      url("fonts/SignalSerif-Bold.ttf") format("truetype");
+  font-weight:700;font-style:normal;font-display:swap;
+}
+:root{
+  --bg:#10262b; --panel:#17353b; --line:#2a4f56; --text:#eef3ef; --muted:#8fb0ab; --accent:#ffb627;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-text:"Open Sans","Inter",system-ui,sans-serif;
+  --font-head:"Signal Serif",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+h1,h2,h3{font-family:var(--font-head);font-weight:700;line-height:1.25}
+button,.now small,thead th,header p{text-transform:uppercase;letter-spacing:1px}
+button,thead th,header p{font-size:.8rem}
+.about p,caption,td{font-family:var(--font-text)}
+
+/* ===== CSS Grid: каркас сторінки (grid-template-areas) ===== */
+.page{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  grid-template-rows:auto 1fr auto auto;
+  grid-template-areas:
+    "header header"
+    "cover  tracks"
+    "about  tracks"
+    "player player";
+  gap:24px;
+  max-width:1200px;margin:0 auto;padding:24px 24px 0;
+}
+header{grid-area:header;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);padding-bottom:16px}
+header h1{font-size:1.6rem;letter-spacing:.02em}
+header p{color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:2px 12px;margin-left:auto}
+.cover{grid-area:cover}
+.about{grid-area:about}
+.tracks{grid-area:tracks;overflow-x:auto}
+.player{grid-area:player;position:sticky;bottom:0;background:var(--panel);border-top:2px solid var(--accent);
+  margin:0 -24px;padding:12px 24px;
+  display:grid;grid-template-columns:auto 1fr;gap:8px 20px;align-items:center}
+
+/* ===== Зображення (WebP + srcset + lazy) ===== */
+.cover img{width:100%;height:auto;display:block;border-radius:6px;animation:fade-in 1.2s ease-out both}
+.cover figcaption{color:var(--muted);font-size:.85rem;margin-top:8px}
+.about h2,.tracks h2{font-size:1.1rem;margin-bottom:8px}
+.about p{color:var(--muted);max-width:60ch;line-height:1.6}
+
+/* ===== SVG-логотип ===== */
+.logo{width:44px;height:44px;flex:none}
+
+/* ===== Семантична таблиця ===== */
+table{width:100%;border-collapse:collapse}
+caption{text-align:left;color:var(--muted);padding-bottom:8px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{color:var(--accent);border-bottom:2px solid var(--accent)}
+th[scope=rowgroup]{background:var(--panel);width:90px;vertical-align:middle;text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tfoot td{color:var(--muted)}
+
+/* ===== transition: hover-ефекти ===== */
+tbody tr{transition:background-color .25s ease}
+tbody tr:hover,tbody tr.is-playing{background:var(--panel)}
+tbody tr.is-playing td:nth-child(2){color:var(--accent)}
+.play{
+  background:transparent;color:var(--text);border:1px solid var(--accent);border-radius:999px;
+  padding:6px 14px;font:inherit;font-size:.8rem;cursor:pointer;
+  transition:background-color .25s,color .25s,transform .2s;
+}
+.play:hover,.play:focus-visible{background:var(--accent);color:var(--bg);transform:scale(1.08)}
+.play:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+
+/* ===== @keyframes: пульсація кнопки та поява обкладинки ===== */
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,182,39,.6)}
+  70%{box-shadow:0 0 0 14px rgba(255,182,39,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,182,39,0)}
+}
+@keyframes fade-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.play-all{
+  background:var(--accent);color:var(--bg);border:0;border-radius:999px;padding:10px 20px;
+  font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;margin-top:12px;
+  animation:pulse 2s infinite;transition:transform .2s;
+}
+.play-all:hover{transform:scale(1.05);animation-play-state:paused}
+.play-all:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+
+.now{font-weight:700}
+.now small{display:block;color:var(--muted);font-weight:400}
+audio{width:100%}
+
+/* ===== Адаптивність ===== */
+@media (max-width:760px){
+  .page{grid-template-columns:1fr;
+    grid-template-areas:"header" "cover" "about" "tracks" "player"}
+  header p{display:none}
+  .player{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <!-- Вбудований SVG-логотип -->
+    <svg class="logo" viewBox="0 0 48 48" role="img" aria-label="Логотип гурту «Сигнальні вогні»">
+      <circle cx="24" cy="24" r="22" fill="none" stroke="#ffb627" stroke-width="2"/>
+      <path d="M8 34 L20 14 L28 28 L33 21 L40 34 Z" fill="#ffb627"/>
+      <circle cx="33" cy="12" r="3" fill="#eef3ef"/>
+    </svg>
+    <h1>Сигнальні вогні</h1>
+    <p>Новий альбом · 2026</p>
+  </header>
+
+  <figure class="cover">
+    <img
+      src="img/cover-800.webp"
+      srcset="img/cover-400.webp 400w, img/cover-800.webp 800w, img/cover-1200.webp 1200w"
+      sizes="(max-width:760px) 100vw, 280px"
+      width="800" height="800" loading="lazy"
+      alt="Обкладинка альбому «Нічні маршрути»: концентричні кола бурштинового та темно-бірюзового кольорів і ряд жовтих стовпчиків внизу">
+    <figcaption>Обкладинка альбому «Нічні маршрути»</figcaption>
+  </figure>
+
+  <section class="about" aria-labelledby="about-title">
+    <h2 id="about-title">Про альбом</h2>
+    <p>«Нічні маршрути» — вигадана збірка з чотирьох інструментальних треків для нічних поїздок. Це навчальна сторінка: треки є короткими синтезованими фрагментами.</p>
+    <button class="play-all" type="button" id="playAll">Слухати альбом</button>
+  </section>
+
+  <section class="tracks" aria-labelledby="tracks-title">
+    <h2 id="tracks-title">Трек-лист</h2>
+    <table>
+      <caption>Чотири треки на двох сторонах платівки</caption>
+      <thead>
+        <tr>
+          <th scope="col">Сторона</th>
+          <th scope="col">Назва</th>
+          <th scope="col" class="num">Тривалість</th>
+          <th scope="col"><span class="sr">Дія</span>Прослухати</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-src="audio/track1" data-title="Перший перон">
+          <th scope="rowgroup" rowspan="2">Сторона A</th>
+          <td>Перший перон</td><td class="num">0:08</td>
+          <td><button class="play" type="button" aria-label="Відтворити трек «Перший перон»">▶ Грати</button></td>
+        </tr>
+        <tr data-src="audio/track2" data-title="Вогні за склом">
+          <td>Вогні за склом</td><td class="num">0:10</td>
+          <td><button class="play" type="button" aria-label="Відтворити трек «Вогні за склом»">▶ Грати</button></td>
+        </tr>
+        <tr data-src="audio/track3" data-title="Транзитна зона">
+          <th scope="rowgroup" rowspan="2">Сторона B</th>
+          <td>Транзитна зона</td><td class="num">0:08</td>
+          <td><button class="play" type="button" aria-label="Відтворити трек «Транзитна зона»">▶ Грати</button></td>
+        </tr>
+        <tr data-src="audio/track4" data-title="Кінцева станція">
+          <td>Кінцева станція</td><td class="num">0:08</td>
+          <td><button class="play" type="button" aria-label="Відтворити трек «Кінцева станція»">▶ Грати</button></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4">Разом: 4 треки, приблизно 34 секунди</td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <!-- Глобальний аудіоплеєр унизу сторінки -->
+  <section class="player" aria-label="Аудіоплеєр">
+    <div class="now" aria-live="polite"><span id="nowTitle">Оберіть трек</span><small>Зараз грає</small></div>
+    <audio id="audio" controls preload="none">
+      <source src="audio/track1.mp3" type="audio/mpeg">
+      <source src="audio/track1.wav" type="audio/wav">
+      Ваш браузер не підтримує елемент audio.
+    </audio>
+  </section>
+
+</div>
+
+<style>.sr{position:absolute;left:-9999px}</style>
+<script>
+const audio=document.getElementById('audio');
+const rows=[...document.querySelectorAll('tbody tr[data-src]')];
+const nowTitle=document.getElementById('nowTitle');
+let current=0;
+
+function load(i,play=true){
+  current=i;
+  const r=rows[i], base=r.dataset.src;
+  audio.innerHTML=`<source src="${base}.mp3" type="audio/mpeg"><source src="${base}.wav" type="audio/wav">`;
+  audio.load();
+  if(play) audio.play().catch(()=>{});
+  nowTitle.textContent=r.dataset.title;
+  rows.forEach(x=>x.classList.remove('is-playing'));
+  r.classList.add('is-playing');
+}
+rows.forEach((r,i)=>r.querySelector('.play').addEventListener('click',()=>load(i)));
+document.getElementById('playAll').addEventListener('click',()=>load(0));
+audio.addEventListener('ended',()=>{ if(current<rows.length-1) load(current+1); });
+</script>
+</body>
+</html>
